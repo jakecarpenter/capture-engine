@@ -40,9 +40,29 @@ while($row = mysqli_fetch_assoc($result))
 							);
 		}
   }
+ 
+ //TEMP DEBUG!!!!
+ echo "<html><pre>";
   
-echo "<html><pre>";
-print_r($tweets); 
+//build our query to insert tweets to local db
+foreach($tweets as $tweet){
+	$columns = implode(", ",array_keys($tweet));
+	$escaped_values = array_map('mysqli_real_escape_string', array_fill(0 , count($tweet) , $con),array_values($tweet));
+
+	$values = array();
+	foreach($escaped_values as $value){
+		$values[] = '"' . $value . '"';
+	}
+	
+	$values_string  = implode(", ", $values);
+	$query = "INSERT INTO `updates` ($columns) VALUES ($values_string)";
+	echo $query. "  |  ";
+	echo mysqli_query($con,$query);
+}
+
+ 
+
+
 
 //functions that do the dirty work.
 
