@@ -11,9 +11,9 @@ $capture_domain = "trycapture.com";
 $capture_event =  "TUGT7fbghB";
 
 //db stuff
-$db_host = "localhsot";
+$db_host = "localhost";
 $db_user = "capture";
-$db_pass = "2Insecure";
+$db_pass = "2insecure";
 $db_db = "capture";
 
 //twitter stuff

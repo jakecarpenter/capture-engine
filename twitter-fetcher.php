@@ -6,7 +6,7 @@ require('auth-info.php');
 //grab the users that we're watching, and the last tweet 
 $users = array();
 // Create DB connection
-$con=mysqli_connect($db_host,$db_host,$db_pass,$db_db);
+$con=mysqli_connect($db_host,$db_user,$db_pass,$db_db);
 
 // Check connection
 if (mysqli_connect_errno($con))
@@ -14,15 +14,35 @@ if (mysqli_connect_errno($con))
   echo "Failed to connect to MySQL: " . mysqli_connect_error();
   }
 
+//we are gonna need a place for the tweets we find
+$tweets = array();
+
 //get users for the event we're tracking.
 $query = "SELECT * FROM users WHERE event='". $capture_event ."'";
 $result = mysqli_query($con,$query);
-while($row = mysqli_fetch_array($result))
+while($row = mysqli_fetch_assoc($result))
   {
-  	$users[] = $row;
+  	$request = array(
+  						"screen_name"=>$row['twitter'],
+  						//"count" => "2"
+  						//"since_id"=>'334167927249055744'
+						);
+	
+  	$user_tweets = returnTweet($auth, $request);
+	
+	foreach($user_tweets as $tweet){
+		$tweets[] = array(
+							"tweet_id" => $tweet['id_str'],
+							"user" => $row['twitter'],
+							"created_at" => $tweet['created_at'],
+							"text" => $tweet['text'],
+							"service" => "twitter"
+							);
+		}
   }
-
-print_r($users);
+  
+echo "<html><pre>";
+print_r($tweets); 
 
 //functions that do the dirty work.
 
@@ -44,7 +64,7 @@ function buildAuthorizationHeader($oauth) {
     return $r;
 }
 
-function returnTweet($auth, $user, $count = 1){
+function returnTweet($auth, $my_request = array()){
     $oauth_access_token         = $auth['oauth_access_token'];
     $oauth_access_token_secret  = $auth['oauth_access_token_secret'];
     $consumer_key               = $auth['consumer_key'];
@@ -54,11 +74,11 @@ function returnTweet($auth, $user, $count = 1){
 
     //  create request
         $request = array(
-            'screen_name'       => $user,
-            //'count'             => $count
             'trim_user'			=> 'true',
             'exclude_replies'	=> 'true'
         );
+		
+		$request = array_merge($request, $my_request);
 
     $oauth = array(
         'oauth_consumer_key'        => $consumer_key,
