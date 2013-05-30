@@ -22,11 +22,16 @@ $query = "SELECT * FROM users WHERE event='". $capture_event ."'";
 $result = mysqli_query($con,$query);
 while($row = mysqli_fetch_assoc($result))
   {
+  	//counter for last tweet
+  	$last_tweet = $row['last_tweet'];
+	
   	$request = array(
-  						"screen_name"=>$row['twitter'],
-  						//"count" => "2"
-  						//"since_id"=>'334167927249055744'
+  						"screen_name"=>$row['twitter']
 						);
+	
+	if($row['last_tweet'] != ""){
+  		$request['since_id'] = $row['last_tweet'];
+  	}
 	
   	$user_tweets = returnTweet($auth, $request);
 	
@@ -36,31 +41,41 @@ while($row = mysqli_fetch_assoc($result))
 							"user" => $row['twitter'],
 							"created_at" => $tweet['created_at'],
 							"text" => $tweet['text'],
-							"service" => "twitter"
+							"service" => "twitter",
+							"parse_user" => $row['parse']
 							);
+		
+		//grab the highest tweet id for each user, then save the number to the user table.			
+		$last_tweet = ($last_tweet < $tweet['id_str'])? $tweet['id_str'] : $last_tweet;
 		}
+	mysqli_query($con, "UPDATE users SET last_tweet='".$last_tweet."' WHERE id='".$row['id']."'");
   }
  
  //TEMP DEBUG!!!!
  echo "<html><pre>";
   
 //build our query to insert tweets to local db
+$values = array();
+
 foreach($tweets as $tweet){
+	
 	$columns = implode(", ",array_keys($tweet));
 	$escaped_values = array_map('mysqli_real_escape_string', array_fill(0 , count($tweet) , $con),array_values($tweet));
 
-	$values = array();
+	$tweetArray = array();
 	foreach($escaped_values as $value){
-		$values[] = '"' . $value . '"';
+		$tweetArray[] = '"' . $value . '"';
 	}
+	$values[] = "(" . implode(", ", $tweetArray) . ")";
 	
-	$values_string  = implode(", ", $values);
-	$query = "INSERT INTO `updates` ($columns) VALUES ($values_string)";
-	echo $query. "  |  ";
-	echo mysqli_query($con,$query);
 }
 
+
  
+	$query = "INSERT INTO `updates` ($columns) VALUES ".implode(", ", $values);
+	
+	echo $query;
+	mysqli_query($con,$query);
 
 
 
