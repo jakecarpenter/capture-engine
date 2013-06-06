@@ -42,6 +42,10 @@ while($row = mysqli_fetch_assoc($result))
 	
 
 	foreach($user_tweets as $tweet){
+				
+		//don't get tweets before the event.
+		if(strtotime($tweet['created_at']) <= $event_start){ continue; }
+		
 		$tweets[] = array(
 							"tweet_id" => $tweet['id_str'],
 							"user" => $row['twitter'],

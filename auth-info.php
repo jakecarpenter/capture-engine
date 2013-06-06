@@ -8,7 +8,9 @@
 
 $capture_domain = "trycapture.com";
 
-$capture_event =  "TUGT7fbghB";
+$capture_event =  "z8uSenxePt";
+
+$event_start = strtotime("Thu Jun 06 03:37:33 +0000 2013");
 
 //db stuff
 $db_host = "localhost";

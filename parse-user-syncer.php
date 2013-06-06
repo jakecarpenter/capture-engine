@@ -34,12 +34,27 @@ while($row = mysqli_fetch_assoc($result)){
 }
 
 echo "<pre>";
+
+print_r(parseFullUser($parse_headers, "https://api.parse.com/1/users/IYvbsJU7Pw"));
 print_r($parseUsers);
 print_r($engineUsers);
 
 
 function parseGet($headers, $url){
 
+	$curl = curl_init();
+	
+	curl_setopt($curl, CURLOPT_URL,  $url);
+	curl_setopt($curl, CURLOPT_USERAGENT, 'trycapture.com-update-engine/1.0');
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+	
+	$curl_response = curl_exec($curl);
+    curl_close($curl);
+	return json_decode($curl_response,TRUE);
+}
+
+function parseFullUser($headers, $url){
 	$curl = curl_init();
 	
 	curl_setopt($curl, CURLOPT_URL,  $url);

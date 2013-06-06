@@ -19,7 +19,7 @@ if (mysqli_connect_errno($con))
   }
 
 //get users for the event we're tracking.
-$query = "SELECT * FROM updates WHERE inserted='false'";
+$query = "SELECT * FROM updates WHERE inserted='false' AND approved='true' ";
 $result = mysqli_query($con,$query);
 
 //setup counters to keep track of results. 
