@@ -1,6 +1,8 @@
 <?php
-//time for et
-$et = microtime();
+//our logger
+require('stats-engine.php');
+$logger = new logger(__FILE__);
+
 
 //pull in the auth/setings stuff
 require('auth-info.php');
@@ -48,6 +50,9 @@ while($row = mysqli_fetch_assoc($result)){
 	
 	$curl = curl_init();
 	
+	//add the content type for the data to the headers;
+	$parse_headers[] = "Content-type: application/json";
+	
 	curl_setopt($curl, CURLOPT_URL,  $parse_url . "/1/classes/Photo");
 	curl_setopt($curl, CURLOPT_POST, 1);
 	curl_setopt($curl, CURLOPT_USERAGENT, 'trycapture.com-update-engine/1.0');
@@ -64,7 +69,7 @@ while($row = mysqli_fetch_assoc($result)){
 	$updates += 1;
 }
 
-echo "did ". $updates . " updates in ".( microtime() - $et). " seconds";
+echo $logger->logThis(array("message"=>"updates inserted", "value" => $updates));
 
 
 ?>

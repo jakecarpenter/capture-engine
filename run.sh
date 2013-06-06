@@ -1,3 +1,3 @@
 #!/bin/bash
-php twitter-fetcher.php >> cron.log
-php parse-inserter.php  >> cron.log
+php /vhosts/jakecarpenter.com/public/capengine/twitter-fetcher.php >> /vhosts/jakecarpenter.com/public/capengine/cron.log
+php /vhosts/jakecarpenter.com/public/capengine/parse-inserter.php  >> /vhosts/jakecarpenter.com/public/capengine/cron.log

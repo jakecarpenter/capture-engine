@@ -1,4 +1,8 @@
 <?php
+//our logger
+require('stats-engine.php');
+$logger = new logger(__FILE__);
+
 
 //pull in the auth/setings stuff
 require('auth-info.php');
@@ -30,11 +34,13 @@ while($row = mysqli_fetch_assoc($result))
 						);
 	
 	if($row['last_tweet'] != ""){
-  		$request['since_id'] = $row['last_tweet'];
+  		$request['since_id'] = $last_tweet;
   	}
+	
 	
   	$user_tweets = returnTweet($auth, $request);
 	
+
 	foreach($user_tweets as $tweet){
 		$tweets[] = array(
 							"tweet_id" => $tweet['id_str'],
@@ -47,16 +53,18 @@ while($row = mysqli_fetch_assoc($result))
 		
 		//grab the highest tweet id for each user, then save the number to the user table.			
 		$last_tweet = ($last_tweet < $tweet['id_str'])? $tweet['id_str'] : $last_tweet;
+		
 		}
+	
 	mysqli_query($con, "UPDATE users SET last_tweet='".$last_tweet."' WHERE id='".$row['id']."'");
   }
  
  //TEMP DEBUG!!!!
- echo "<html><pre>";
+
   
 //build our query to insert tweets to local db
 $values = array();
-
+$columns = "";
 foreach($tweets as $tweet){
 	
 	$columns = implode(", ",array_keys($tweet));
@@ -71,12 +79,13 @@ foreach($tweets as $tweet){
 }
 
 
- 
+ 	
 	$query = "INSERT INTO `updates` ($columns) VALUES ".implode(", ", $values);
 	
-	echo $query;
-	mysqli_query($con,$query);
-
+	//echo $query;
+	if(count($values) != 0){
+		mysqli_query($con,$query);
+	}
 
 
 //functions that do the dirty work.
@@ -109,8 +118,8 @@ function returnTweet($auth, $my_request = array()){
 
     //  create request
         $request = array(
-            'trim_user'			=> 'true',
-            'exclude_replies'	=> 'true'
+            'trim_user'			=> 'false',
+            'exclude_replies'	=> 'false'
         );
 		
 		$request = array_merge($request, $my_request);
@@ -149,5 +158,6 @@ function returnTweet($auth, $my_request = array()){
     return json_decode($json, true);
 }
 
+echo $logger->logThis(array("message"=>"tweets fetched", "value" => count($tweets)));
 
 ?>
