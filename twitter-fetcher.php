@@ -58,9 +58,9 @@ while($row = mysqli_fetch_assoc($result))
 		//grab the highest tweet id for each user, then save the number to the user table.			
 		$last_tweet = ($last_tweet < $tweet['id_str'])? $tweet['id_str'] : $last_tweet;
 		
+		
 		}
-	
-	mysqli_query($con, "UPDATE users SET last_tweet='".$last_tweet."' WHERE id='".$row['id']."'");
+	if($last_tweet != 0) mysqli_query($con, "UPDATE users SET last_tweet='".$last_tweet."' WHERE id='".$row['id']."'");
   }
  
  //TEMP DEBUG!!!!
@@ -91,7 +91,7 @@ foreach($tweets as $tweet){
 		mysqli_query($con,$query);
 	}
 
-
+	
 //functions that do the dirty work.
 
 function buildBaseString($baseURI, $method, $params) {

@@ -22,24 +22,51 @@ $parse_url = "https://api.parse.com/1/users";
 //get all the users from parse
 $parseUsers = parseGet($parse_headers, $parse_url);
 $parseUsers = $parseUsers['results'];
-
-//get all the users we already know about.
-$query = "SELECT * FROM users";
-$result = mysqli_query($con,$query);
-
-$engineUsers = array();
-
-while($row = mysqli_fetch_assoc($result)){
-	$engineUsers[$row['parse']] = $row;
-}
-
 echo "<pre>";
 
-print_r(parseFullUser($parse_headers, "https://api.parse.com/1/users/IYvbsJU7Pw"));
-print_r($parseUsers);
-print_r($engineUsers);
+$users = array();
+foreach ($parseUsers as $user) {
+	if(!array_key_exists('authData', $user)){
+		continue;
+	}
+	
+	$users[] = array(
+		"parse" => $user['objectId'],
+		"twitter" => array_key_exists("twitter", $user['authData']) ? $user['authData']['twitter']['screen_name']: "",
+		"facebook" => (array_key_exists("facebook", $user['authData']))? $user['authData']['facebook']['id'] : "",
+		"facebook_token" =>(array_key_exists("facebook", $user['authData']))? $user['authData']['facebook']['access_token']: ""
+	);
+}
+//build our query
+$values = array();
+$columns = "";
+foreach($users as $user){
+	
+	$columns = implode(", ",array_keys($user));
+	$escaped_values = array_map('mysqli_real_escape_string', array_fill(0 , count($user) , $con),array_values($user));
+
+	$userArray = array();
+	foreach($escaped_values as $value){
+		$userArray[] = '"' . $value . '"';
+	}
+	$values[] = "(" . implode(", ", $userArray) . ")";
+	
+}
 
 
+ 	
+	$query = "INSERT INTO `users` ($columns) VALUES ".implode(", ", $values).
+	" ON DUPLICATE KEY UPDATE parse = parse";
+	
+	
+	if(count($values) != 0){
+		$result = mysqli_query($con,$query);
+	}
+
+echo $result;
+
+
+//util functions
 function parseGet($headers, $url){
 
 	$curl = curl_init();
@@ -54,18 +81,6 @@ function parseGet($headers, $url){
 	return json_decode($curl_response,TRUE);
 }
 
-function parseFullUser($headers, $url){
-	$curl = curl_init();
-	
-	curl_setopt($curl, CURLOPT_URL,  $url);
-	curl_setopt($curl, CURLOPT_USERAGENT, 'trycapture.com-update-engine/1.0');
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-	
-	$curl_response = curl_exec($curl);
-    curl_close($curl);
-	return json_decode($curl_response,TRUE);
-}
 
 echo $logger->logThis(array("message"=>"users synced", "value" => count($parseUsers)));
 

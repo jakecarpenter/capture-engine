@@ -29,7 +29,8 @@ $auth['consumer_secret'] = 'SNeFuSp9UXyXZX2HujW2lnojmvv4VyoskDXG02PYCM';
 $parse_url = "https://api.parse.com";
 $parse_headers = array(
    'X-Parse-Application-Id:  JfuHcRkELk91tbejwxCllYPRyauk3s4jCnTKQjah',
-   'X-Parse-REST-API-Key: LO8kGXmk83QlC2vQI1QGcEkt3cNDeIC2RHNogfpn'
+   'X-Parse-REST-API-Key: LO8kGXmk83QlC2vQI1QGcEkt3cNDeIC2RHNogfpn',
+   "X-Parse-Master-Key: sZn5XOSKQ4NHnzLBqVSEXYYxby3GMh1b1wdop1BP"
 );
 
 ?>
