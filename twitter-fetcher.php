@@ -1,8 +1,4 @@
 <?php
-//our logger
-require('stats-engine.php');
-$logger = new logger(__FILE__);
-
 
 //pull in the auth/setings stuff
 require('auth-info.php');

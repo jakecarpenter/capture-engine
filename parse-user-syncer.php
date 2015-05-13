@@ -3,9 +3,6 @@
 //pull in the auth/setings stuff
 require('auth-info.php');
 
-//our logger
-require('stats-engine.php');
-$logger = new logger(__FILE__);
 
 // Create DB connection
 $con=mysqli_connect($db_host,$db_user,$db_pass,$db_db);
